@@ -1,0 +1,99 @@
+---
+title: "Indonesia Jarvis Bango"
+author: '[Gourab](https://twitter.com/gc_dataStart)'
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,results = T)
+req_packages <- c("readxl","magrittr","tidyverse","dplyr","ggplot2","knitr","kableExtra")
+sapply(req_packages,library,character.only=T)
+```
+
+## Introduction
+
+__Indonesia Jarvis Bango__ report provide the users an overview about the data blending process which has been built using the __R Software__ and the packages . The report has been built using the `r R.version.string`.
+
+The data blending model is built for the Indonesia `Seasoning` sector `Savoury` brand `Bango`.
+
+`NOTE:The R project has been developed for the data blending of the Internal source Key Performance Indicators (KPI's).`
+
+## Data Sources
+
+```{r DS,echo=F}
+  current_working_directory <- getwd()
+  file_name <- "KPI List Jarvis ID.xlsx"
+  kpi_data <- readxl::read_xlsx(paste0(current_working_directory,"/",file_name))
+  ds_list <- unique(kpi_data$Source_Type)
+  ds_internal <- unique(kpi_data[kpi_data$Source_Type==ds_list[1],2])
+  ds_external <- unique(kpi_data[kpi_data$Source_Type==ds_list[2],2])
+  kpi_internal <- unique(kpi_data[kpi_data$Source_Type==ds_list[1],3])%>%dplyr::rename(`Internal_KPI's`=KPI_List)
+  kpi_external <- unique(kpi_data[kpi_data$Source_Type==ds_list[2],3])%>%dplyr::rename(`External_KPI's`=KPI_List)
+  count_internal <- count(kpi_internal)
+  count_external <- count(kpi_external)
+  
+```
+The Input data sources which the data blending process requires has been classfied broadly into two sources `r ds_list[1]` and `r ds_list[2]` data sources.The **Internal** data sources primarily is `SAP BW` with **External** covering sources such as `Nielsen ,Kantar,Milward Brown(BGS),Media`.
+
+The list of **Internal** data sources are mentioned as below `r kable(ds_internal)%>%kable_styling()`. The list of **External** data sources are mentioined as below 
+`r kable(ds_external)%>%kable_styling()`.
+
+For our understanding lets take a look into  **Internal** and **External** Key Perfomance Indicators (KPI's) 
+
+**First 10 Internal and External KPI's**
+```{r first KPI}
+head(kpi_internal,n = 10)
+head(kpi_external,n=10)
+```
+
+**Last 10 Internal and External KPI's**
+
+``` {r last KPI}
+tail(kpi_internal,n = 10)
+tail(kpi_external,n=10)
+```
+The `ID Jarvis bango` model in total has `r sum(count_internal,count_external)` KPI's with **Internal** and **External** sources having `r count_internal` and `r count_external` number of KPI's respectively.
+
+## Let's Deep Dive
+
+The `ID Jarvis Bango` project currently has 63 models which has been created based on various parameters as defined by the business.The models are based on the following paramters.
+
+1.Channel `Modern Trade (MT),General Trade (GT) Total indonesia`.
+
+2.Region `Central & East Java (cej), Other Islands (oi), Sumatera (sumatera), West Java (wj)`.
+
+3.Sub Channel `Mini Market, Hyper and Super Market (HSM)` .
+
+4.Account `Alfamart,Careffour,Indomart`.
+
+5.Packgroup 
+```
+Bango Manis Big pouch(bmbp), Bango Manis Medium Pouch (bmmp), Bango Manis Big Sachet (bmbs)
+Bango Manis Small pouch (bmsp),Bango Manis Medium Bottle (bmmb) ,Bango Manis Small Bottle (bmsb).
+```
+6.Basepack
+```
+
+
+
+
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
