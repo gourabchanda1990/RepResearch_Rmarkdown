@@ -1,0 +1,264 @@
+---
+title: "Indonesia Jarvis Bango"
+author: '[Gourab](https://twitter.com/gc_dataStart)'
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    theme: cerulean
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,results = T)
+req_packages <- c("readxl","magrittr","tidyverse","dplyr","ggplot2","knitr","kableExtra","webshot","hablar","ggplot2")
+sapply(req_packages,library,character.only=T)
+```
+
+# Introduction
+
+__Indonesia Jarvis Bango__ report provide the users an overview about the data blending process which has been built using the __R Software__ and the packages . The report has been built using the __`r R.version.string`__.
+
+The data blending model is built for the Indonesia `Savoury` brand __`Bango`__ which falls under `Seasoning` sector.
+
+__`NOTE:The R project has been developed for the data blending of the Internal source Key Performance Indicators (KPI's)`__
+
+## Data Sources (Summary Snapshot)
+
+```{r DS,echo=F}
+  current_working_directory <- getwd()
+  file_name <- "KPI List Jarvis ID.xlsx"
+  kpi_data <- readxl::read_xlsx(paste0(current_working_directory,"/",file_name))
+  ds_list <- unique(kpi_data$Source_Type)
+  ds_internal <- unique(kpi_data[kpi_data$Source_Type==ds_list[1],2])
+  ds_external <- unique(kpi_data[kpi_data$Source_Type==ds_list[2],2])
+  kpi_internal <- unique(kpi_data[kpi_data$Source_Type==ds_list[1],3])%>%dplyr::rename(`Internal_KPI's`=KPI_List)
+  kpi_external <- unique(kpi_data[kpi_data$Source_Type==ds_list[2],3])%>%dplyr::rename(`External_KPI's`=KPI_List)
+  count_internal <- count(kpi_internal)
+  count_external <- count(kpi_external)
+  
+```
+The Input data sources which the data blending process requires has been classfied broadly into two sources __`r ds_list[1]`__ and __`r ds_list[2]`__ data sources.The **Internal** data sources primarily is __`SAP BW`__ with **External** covering sources such as __`Nielsen ,Kantar,Milward Brown(BGS),Media`__.
+
+The list of **Internal** data sources are mentioned as below 
+```{r}
+head(ds_internal,n=nrow(ds_internal))
+```
+The list of **External** data sources are mentioined as below 
+```{r} 
+head(ds_external,n=nrow(ds_external))
+```
+
+For our understanding lets take a look into  **Internal** and **External** Key Perfomance Indicators (KPI's) 
+
+**First 10 Internal and External KPI's**
+```{r first KPI}
+head(kpi_internal,n = 10)
+head(kpi_external,n=10)
+```
+
+**Last 10 Internal and External KPI's**
+
+``` {r last KPI}
+tail(kpi_internal,n = 10)
+tail(kpi_external,n=10)
+```
+The __`ID Jarvis bango`__ model in total has __`r sum(count_internal,count_external)`__ KPI's with **Internal** and **External** sources having __`r count_internal`__ and __`r count_external`__ number of KPI's respectively.
+
+## Project Parameters
+
+The __`ID Jarvis Bango`__ project currently has 63 models which has been created based on various parameters as defined by the business.The models are based on the following paramters.
+
+1.Channel __`Modern Trade (MT),General Trade (GT) Total indonesia`__.
+
+2.Region __`Central & East Java (cej), Other Islands (oi), Sumatera (sumatera), West Java (wj)`__.
+
+3.Sub Channel __`Mini Market, Hyper and Super Market (HSM)`__ .
+
+4.Account __`Alfamart,Careffour,Indomart`__.
+
+5.Packgroup 
+```
+Bango Manis Big pouch(bmbp), Bango Manis Medium Pouch (bmmp), Bango Manis Big Sachet (bmbs)
+Bango Manis Small pouch (bmsp),Bango Manis Medium Bottle (bmmb) ,Bango Manis Small Bottle (bmsb)
+```
+6.Basepack
+```
+BANGO KECAP MANIS PEDAS 135ML(bkmp135),BANGO KECAP MANIS PEDAS 220ML(bkmp220)
+BANGO SOY/OYSTER/FISH SAUCE MANIS 60ML(bsofs60),BANGO KECAP MANIS 135ML(bkm135)
+BANGO SOY/OYSTR/FISH SUCE MNIS SCHT 30ML(bsofms30),BANGO SOY/OYSTER/FISH KECAP MANIS 580ML(bsof580)
+BANGO KECAP MANIS 275ML(bkm275),BANGO KECAP MANIS 620ML(bkm620),BANGO KECAP MANIS 220ML(bkm220)
+```
+
+## Internal Data Sources (Deep Dive)
+*****
+
+
+### Background
+
+__INTERNAL DATA SOURCES__ are the legacy source systems present in Unilever data ecosystem providing key information on Sales, Financials & other business information. The Information is only available to Unilever and is Private & Confidential in nature. Access to these data sources are managed by Unilever IT teams based on appropriate approvals.
+
+### Internal Data Sources  
+
+
+#### Primary Sales (SAP BW)
+The primary sales refers to the sales which has been done by Unilever directly to the distributors. The Primary sales data are fetched from __`SAP BW`__ system. 
+
+##### Key Performance Indicator (KPI's) list
+```
+Base KPI's : Gross Sales Value(GSV),Net Invoice Value (NIV),Sales Quantity(PCS)
+Derived KPI's : Sales Quantity(KG),Sales Quantity (Tonns)
+
+```
+
+ __`Sales Quantity(KG)`__ and __`Sales Quantity(Tonns)`__ KPI's are calculated as   
+
+```
+Sales Quantity(KG) = Sales Quantity*conversion_factor
+Sales Quantity(Tonn) = Sales Quantity(KG)/1000
+
+```
+#### Secondary Sales (SAP BW)
+The secondary sales refers to the sale which has been done by Unilever to the retailers. The Secondary sales data are fetched from __`SAP BW`__ system.
+
+##### Key Performance Indicator (KPI's) list 
+
+```
+Base KPI's : Secondary Sales Value , Secondary sales Volume
+Dervided KPI's : Secondary Sales Volume(KG),Secondary Sales Volume(Tonns)
+
+```
+__`Secondary Sales Volume (KG)`__ and __`Secondary Sales Volume(Tonns)`__ KPI's are calculated as
+
+```
+Secondary Sales Volume(KG) = Secondary Sales Volume*conversion_factor
+Secondary Sales Volume(Tonns) = Secondary Sales Volume(KG)/1000
+
+```
+
+#### Secondary Stocks (SAP BW)
+<intro> The Secondary Stock
+
+##### Key Performance Indicator (KPI's) list
+
+```
+Base KPI's : Secondary Stock Volume , Secondary Stock Value [@ DT Rate.] 
+Derived KPI's : Secondary Stock Volume(KG) ,Secondary Stock Volume(Tonns)
+
+```
+__`Secondary Stock Volume (KG)`__ and __`Secondary Stock Volume(Tonns)`__ KPI's are calculated as
+
+```
+Secondary Stock Volume(KG) = Secondary Stock Volume*conversion_factor
+Secondary Stock Volume(Tonns) = Secondary Stock Volume(KG)/1000
+
+```
+
+#### Dispatch Rate (SAP BW)
+<intro> The dispatch rate 
+
+##### Key Performance Indicator (KPI's) list
+
+```
+Base KPI's : Original Qty , Final Customer Expected Qty , Dispatched Qty
+Derived KPI's : Dispatch Rate (DR) , Dispatch Rate (DROO)
+
+```
+__`Dispatch Rate (DR)`__ and __`DROO`__ are calculated as
+
+```
+Dispatch Rate (DR) = Dispatched Qty/Final Customer Expected Qty*100 
+Dispatch Rate (DROO) = Dispatched Qty/Original Qty*100
+```
+#### Itrust 
+<intro> 
+
+##### Key Performance Indicator (KPI's) list
+
+```
+Base KPI's :
+Derived KPI's : Itrust Line , Itrust Total , Itrust %
+
+```
+__`Itrust Line`__ is calculated as mentioned below 
+
+```
+For each observation in the dataframe
+if::
+ Final CRR = 0 then Itrust Line = 0
+else::
+ Stock CS > Final CRR then Itrust Line = 1 else 0
+
+```
+__`Itrust Total`__ is calculated as mentioned below
+
+```
+For each observation in the dataframe
+if::
+ Final CRR ==0 then Itrust Total = 0 else 1
+```
+__`Itrust %`__ is calculated as mentioned below
+```
+Itrust Line % = Itrust Line/ Itrust Total * 100
+```
+
+
+## Bango General Trade (GT) Model 
+****
+
+### Introduction
+
+```{r GT,echo=FALSE}
+bango_gt <- tibble::as_tibble(read_xlsx(paste0(getwd(),"/formated_total_bango_gt.xlsx")))
+gt_kpi <- hablar::convert(bango_gt,num(`Bango GT_GSV`:ncol(bango_gt)))
+gt_kpi <- dplyr::select(bango_gt,c(`Bango GT_GSV`:ncol(bango_gt)))
+gt_data <- dplyr::select(bango_gt,c(Month,Channel,`Bango GT_GSV`:`Bango_I Trust %`))
+```
+The Bango GT model is the model which calculates the internal KPI's at __`Channel`__ level for the General Trade or Distributive trade . For the Bango GT model we have total __`r ncol(gt_kpi)`__ internal KPI's.
+
+### Internal KPI's summary
+
+The Internal KPI's list are as follows 
+```{r gt_bango,echo=F}
+kpi_names <- as.data.frame(colnames(gt_kpi[-1,1:ncol(gt_kpi)]))
+```
+```{r kpi_list,echo=F}
+x <- "kPI_Name"
+colnames(kpi_names) <- x
+head(kpi_names,n=nrow(kpi_names))
+```
+
+__`The 5 numbers summary for each KPI's is mentioned as below`__
+```{r}
+summary(gt_kpi)
+```
+## Bango Mordern Trade (MT) Model 
+****
+
+### Introduction
+
+```{r MT,echo=FALSE}
+bango_mt <- tibble::as_tibble(read_xlsx(paste0(getwd(),"/formated_total_bango_mt.xlsx")))
+mt_kpi <- dplyr::select(bango_mt,c(`Bango_GSV`:ncol(bango_mt)))
+bango_mt <- hablar::convert(bango_mt,num(`Bango_GSV`:ncol(bango_mt)))
+
+mt_data <- dplyr::select(bango_mt,c(Month,Channel,`Bango_GSV`:ncol(bango_mt)))
+```
+The Bango MT model is the model which calculates the internal KPI's at __`Channel`__ level for the Mordern Trade. For the Bango MT model we have total __`r ncol(mt_kpi)`__ internal KPI's.
+
+### Internal KPI's summary
+
+The Internal KPI's list are as follows 
+```{r mt_bango,echo=F}
+kpi_names <- as.data.frame(colnames(mt_kpi[-1,1:ncol(mt_kpi)]))
+```
+```{r kpi_list,echo=F}
+x <- "kPI_Name"
+colnames(kpi_names) <- x
+head(kpi_names,n=nrow(kpi_names))
+```
+
+__`The 5 numbers summary for each KPI's is mentioned as below`__
+```{r}
+summary(mt_kpi)
+```
