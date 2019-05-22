@@ -89,5 +89,61 @@ idle_users <- idle_users%>%
 idle_users$`User Email`
 
 ```
+## `r basic_license_type[3]`
+
+The number of licenses allocated by Clarabridge for __`r basic_license_type[3]`__ is __`r allocated_license[2,1]`__ and the number of license consumed is __`r nrow(cx_studio)`__, which means we are __`r allocated_license[2,1]-nrow(cx_studio)`__. We have found out that there are few users with `r basic_license_type[3]` license type who have never logged in to the platform.
+
+__Note__: The last Login Time determines when the user had last logged into the platform.
+
+### Users details who have never used the platform
+
+The users who has not logged in to the platform for any time till from their account creation date are mentioned below
+
+```{r cx_studio_NL,echo=F}
+
+cx_studio_NL <- cx_studio[which(is.na(cx_studio$`Login Date`)),]
+cx_studio_NL %<>% select(c(`First Name`,`Last Name`,`User Email`))
+head(cx_studio_NL,n=nrow(cx_studio_NL))
+
+```
+### Idle Users from 01-01-2019 
+
+The users who have not used the platform from __January 01 2019__ are mentioned below . Please do note we have filtered out those users who have never used the platform .
+
+```{r idle_cxstudio,echo=F}
+idle_users <- cx_studio[!(is.na(cx_studio$`Login Date`)),]
+idle_users <- idle_users%>%
+  filter(.,`Login Date` <= as.Date("2019-01-01"))
+idle_users$`User Email`
+
+```
+
 ## `r basic_license_type[2]`
+
+The number of licenses allocated by Clarabridge for __`r basic_license_type[2]`__ is __`r allocated_license[3,1]`__ and the number of license consumed is __`r nrow(cx_studio)`__, which means we are __`r allocated_license[2,1]-nrow(cx_studio)`__. We have found out that there are few users with `r basic_license_type[3]` license type who have never logged in to the platform.
+
+__Note__: The last Login Time determines when the user had last logged into the platform.
+
+### Users details who have never used the platform
+
+The users who has not logged in to the platform for any time till from their account creation date are mentioned below
+
+```{r cx_studio_NL,echo=F}
+
+basic_cx_studio_NL <- basic_cx_studio[which(is.na(basic_cx_studio$`Login Date`)),]
+basic_cx_studio_NL %<>% select(c(`First Name`,`Last Name`,`User Email`))
+head(cx_studio_NL,n=nrow(basic_cx_studio_NL))
+
+```
+### Idle Users from 01-01-2019 
+
+The users who have not used the platform from __January 01 2019__ are mentioned below . Please do note we have filtered out those users who have never used the platform .
+
+```{r idle_cxstudio_basic,echo=F}
+idle_users <- basic_cx_studio[!(is.na(basic_cx_studio$`Login Date`)),]
+idle_users <- idle_users%>%
+  filter(.,`Login Date` <= as.Date("2019-01-01"))
+idle_users$`User Email`
+
+```
 
