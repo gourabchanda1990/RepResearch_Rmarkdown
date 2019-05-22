@@ -1,0 +1,93 @@
+---
+title: "Clarabridge License Audit Report"
+author: '[Gourab](https://eur.delve.office.com/?u=3590af90-5c56-4bab-b266-774c53b44384&v=work)'
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    theme: cerulean
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+req_packages <- c("readxl","magrittr","tidyverse","dplyr","ggplot2","knitr","kableExtra","webshot","hablar","ggplot2")
+sapply(req_packages,library,character.only=T)
+```
+
+# Introduction
+
+The R markdown Report provides the detailed analysis on the clarabridge license audit which has been performed by the PDC Labs operations team . The report will help PDC Labs lead to identify about the usage pattern of clarabridge license by the PDC analyst across the squads in PDC and take right decision about the tool.The report has been created using `r R.version.string`.  
+
+# Background
+
+As per the __`PDC Operation Model 2019`__ PDC service will operate on squad basis across the clusters and the categories . Each squads will have tool champion for the below mentioned tools .
+```{r squad_tools,echo=FALSE}
+
+squad_tools <- read_xlsx(path = "C:/Users/Gourab.Chanda/Desktop/PDC_Docs/PDC_squad_tools.xlsx",sheet = 1)
+(squad_tools$Squad_Tool_List)
+```
+
+# Audit Process
+
+The user log can be extracted from Clarabridge CX Studio platform by the `administrator` of the platform in an `excel workbook format` which will be shared by the __`clarabridge support team`__.
+
+```{r CB_Audit,echo=F}
+cb_usage_report <- read_xlsx(path = "C:/Users/Gourab.Chanda/Desktop/PDC_Docs/User_Report_CB.xlsx",col_names = T,sheet = 1)
+cb_usage_report[which(is.na(cb_usage_report$`License Type`)),"License Type"] <- "Not Assigned"
+cb_usage_report%<>%separate(data =.,col = `Last Login Date`,c("Login Date",NA),sep = "T")
+cb_usage_report%<>%separate(data =.,col = `Creation Date`,c("Creation Date",NA),sep = "T")
+cb_usage_report$`Login Date` <- lubridate::parse_date_time(cb_usage_report$`Login Date`,orders = "mdy")
+cb_usage_report$`Creation Date` <- lubridate::parse_date_time(cb_usage_report$`Creation Date`,orders = "mdy")
+cb_license_type <- unique(cb_usage_report$`License Type`)
+basic_license_type <- cb_license_type[cb_license_type!="Not Assigned"]
+```
+
+Currently `Clarabridge` offers `r length(basic_license_type)` license type which are __`r head(basic_license_type)`__.The number of licenses allocated for each user type are mentioned below :
+
+```{r license_allocated,echo=F}
+allocated_license <- c("CB_Designer"=153,"CX_Studio"=252,"Basic_CX_Studio"=400)
+allocated_license <- as.data.frame(allocated_license)
+allocated_license
+```
+
+## `r basic_license_type[1]`
+
+```{r cx_license,echo=F}
+cx_designer <- cb_usage_report%>%
+  filter(`License Type`==basic_license_type[1])
+cx_studio <- cb_usage_report%>%
+  filter(`License Type`==basic_license_type[2])
+basic_cx_studio <- cb_usage_report%>%
+  filter(`License Type`==basic_license_type[3])
+```
+The number of licenses allocated by Clarabridge for __`r basic_license_type[1]`__ is __`r allocated_license[1,1]`__ and the number of license consumed is __`r nrow(cx_designer)`__, which means we are __`r allocated_license[1,1]-nrow(cx_designer)`__. We have found out that there are few users with `r basic_license_type[1]` license type who have never logged in to the platform.
+
+__Note__: The last Login Time determines when the user had last logged into the platform.
+
+### Users details who have never used the platform
+
+The users who has not logged in to the platform for any time till from their account creation date are mentioned below
+
+```{r cx_desginer_NL,echo=F}
+
+cx_designer_NL <- cx_designer[which(is.na(cx_designer$`Login Date`)),]
+cx_designer_NL %<>% select(c(`First Name`,`Last Name`,`User Email`))
+head(cx_designer_NL)
+
+```
+
+
+### Idle Users from 01-01-2019 
+
+The users who have not used the platform from __January 01 2019__ are mentioned below . Please do note we have filtered out those users who have never used the platform .
+
+```{r idle_cxdesigner,echo=F}
+idle_users <- cx_designer[!(is.na(cx_designer$`Login Date`)),]
+idle_users <- idle_users%>%
+  filter(.,`Login Date` <= as.Date("2019-01-01"))
+idle_users$`User Email`
+
+```
+## `r basic_license_type[2]`
+
