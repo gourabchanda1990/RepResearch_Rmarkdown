@@ -128,7 +128,7 @@ __Note__: The last Login Time determines when the user had last logged into the 
 
 The users who has not logged in to the platform for any time till from their account creation date are mentioned below
 
-```{r cx_studio_NL,echo=F}
+```{r basic_cx_studio_NL,echo=F}
 
 basic_cx_studio_NL <- basic_cx_studio[which(is.na(basic_cx_studio$`Login Date`)),]
 basic_cx_studio_NL %<>% select(c(`First Name`,`Last Name`,`User Email`))
